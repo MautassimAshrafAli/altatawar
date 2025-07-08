@@ -115,15 +115,29 @@ function App() {
     setIsSubmitting(true)
     
     try {
-      // Simulate form submission
-      await new Promise(resolve => setTimeout(resolve, 1000))
-      setSubmitMessage('تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.')
-      setFormData({ name: '', email: '', subject: '', message: '' })
+      // Send form data to email backend
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(formData)
+      })
+      
+      const result = await response.json()
+      
+      if (response.ok && result.success) {
+        setSubmitMessage(result.message || 'تم إرسال رسالتك بنجاح! سنتواصل معك قريباً.')
+        setFormData({ name: '', email: '', subject: '', message: '' })
+      } else {
+        setSubmitMessage(result.error || 'حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى.')
+      }
     } catch (error) {
+      console.error('Error sending email:', error)
       setSubmitMessage('حدث خطأ في إرسال الرسالة. يرجى المحاولة مرة أخرى.')
     } finally {
       setIsSubmitting(false)
-      setTimeout(() => setSubmitMessage(''), 5000)
+      setTimeout(() => setSubmitMessage(''), 8000)
     }
   }
 
